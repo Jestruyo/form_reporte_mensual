@@ -1532,6 +1532,37 @@ header h1 {
     border: 2px solid #fecaca;
 }
 
+.form-fallback {
+    margin-top: 24px;
+    padding: 16px;
+    background: #eff6ff;
+    border: 2px solid #2563eb;
+    border-radius: 10px;
+    font-size: 0.9rem;
+}
+
+.form-fallback p {
+    margin: 0 0 12px;
+    color: #1e40af;
+    line-height: 1.5;
+}
+
+.btn-secure {
+    display: inline-block;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    color: #fff !important;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-secure:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.4);
+}
+
 /* History panel */
 .history-toolbar {
     margin-bottom: 24px;

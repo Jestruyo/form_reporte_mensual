@@ -67,7 +67,34 @@
         };
     }
 
-    form.addEventListener('submit', async function (e) {
+    function submitViaIframe(data) {
+        var iframe = document.getElementById('formTargetFrame');
+        if (!iframe) {
+            iframe = document.createElement('iframe');
+            iframe.name = 'formTargetFrame';
+            iframe.id = 'formTargetFrame';
+            iframe.setAttribute('aria-hidden', 'true');
+            iframe.style.cssText = 'position:absolute;width:0;height:0;border:0;visibility:hidden;';
+            document.body.appendChild(iframe);
+        }
+        var f = document.createElement('form');
+        f.method = 'POST';
+        f.action = SCRIPT_URL;
+        f.target = 'formTargetFrame';
+        f.style.display = 'none';
+        Object.keys(data).forEach(function (key) {
+            var input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = key;
+            input.value = data[key] === undefined || data[key] === null ? '' : String(data[key]);
+            f.appendChild(input);
+        });
+        document.body.appendChild(f);
+        f.submit();
+        document.body.removeChild(f);
+    }
+
+    form.addEventListener('submit', function (e) {
         e.preventDefault();
         hideMessage();
 
@@ -81,7 +108,7 @@
             return;
         }
 
-        const data = getFormData();
+        var data = getFormData();
         if (typeof FORM_VALIDATION_CODE !== 'undefined' && FORM_VALIDATION_CODE) {
             data.codigo = FORM_VALIDATION_CODE;
         }
@@ -89,56 +116,11 @@
         submitBtn.disabled = true;
         submitBtn.textContent = 'Enviando…';
 
-        const params = new URLSearchParams();
-        Object.keys(data).forEach(function (key) {
-            params.append(key, data[key] === undefined || data[key] === null ? '' : data[key]);
-        });
-
-        try {
-            const response = await fetch(SCRIPT_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: params.toString(),
-                redirect: 'manual'
-            });
-
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Enviar reporte';
-
-            // Google Apps Script a veces responde 302 (redirige a googleusercontent.com).
-            // El navegador no reenvía el POST en la redirección, pero el script puede haber
-            // procesado el POST antes. Tratamos 302 como envío aceptado.
-            if (response.type === 'opaqueredirect' || response.status === 302 || response.status === 0) {
-                showMessage('Reporte enviado. Si no aparece en la hoja, abre la pestaña "Mi historial" y pulsa Actualizar, o intenta de nuevo.', 'success');
-                form.reset();
-                return;
-            }
-
-            const text = await response.text();
-            let result = { ok: response.ok, message: text };
-            try {
-                result = JSON.parse(text);
-            } catch (_) {
-                // Si la respuesta es HTML (p. ej. página de echo de Google), no mostrar el HTML.
-                if (typeof text === 'string' && (text.trim().startsWith('<') || text.includes('<html'))) {
-                    result = { ok: response.ok, message: 'Reporte enviado correctamente. Gracias.' };
-                }
-            }
-
-            if (result.ok) {
-                showMessage(result.message || 'Reporte enviado correctamente. Gracias.', 'success');
-                form.reset();
-            } else {
-                showMessage(result.message || 'Error al guardar. Vuelve a intentarlo.', 'error');
-            }
-        } catch (err) {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Enviar reporte';
-            let msg = 'No se pudo conectar. Revisa la URL en config.js y que el script esté desplegado.';
-            if (err.message) msg += ' (' + err.message + ')';
-            msg += ' Si estás en GitHub Pages y el error persiste, usa el formulario en la URL del script añadiendo ?form=1.';
-            showMessage(msg, 'error');
-        }
+        submitViaIframe(data);
+        showMessage('Reporte enviado. Revisa la pestaña "Mi historial" en unos segundos para confirmar. Si no aparece, usa el enlace "Formulario seguro" más abajo.', 'success');
+        form.reset();
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Enviar reporte';
     });
 
     form.addEventListener('reset', function () {
@@ -147,4 +129,9 @@
         setFieldError('Grupo', '');
         setFieldError('Predico', '');
     });
+
+    var linkSeguro = document.getElementById('linkFormSeguro');
+    if (linkSeguro && typeof SCRIPT_URL !== 'undefined' && SCRIPT_URL) {
+        linkSeguro.href = SCRIPT_URL.indexOf('?') >= 0 ? SCRIPT_URL + '&form=1' : SCRIPT_URL + '?form=1';
+    }
 })();
