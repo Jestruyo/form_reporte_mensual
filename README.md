@@ -44,6 +44,27 @@ Con esta opción no necesitas hospedar los archivos en ningún otro sitio.
 
 ---
 
+## Cómo activar el botón "Abrir formulario seguro para enviar"
+
+En la pestaña **Enviar reporte** hay un botón verde que abre el formulario en la web de Google. Para que funcione:
+
+1. **En `config.js`** debe estar definida la URL del script:
+   ```js
+   const SCRIPT_URL = 'https://script.google.com/macros/s/TU_ID/exec';
+   ```
+   (la misma URL que usas para el envío desde la página).
+
+2. **En Apps Script** tiene que existir el archivo **formulario.html** que sirve ese formulario:
+   - En el editor (Extensiones → Apps Script de tu hoja): **Archivo → Nuevo → Archivo HTML**.
+   - Ponle de nombre **`formulario`** (sin .html en el nombre del proyecto).
+   - Abre el archivo **formulario.html** de este proyecto en tu PC, copia todo el contenido y pégalo en el archivo `formulario` dentro de Apps Script. Guarda.
+
+3. **Despliega** (o actualiza la versión): Implementar → Nueva implementación (o Gestionar implementaciones → Editar → Nueva versión) → Implementar.
+
+Al hacer clic en **"Abrir formulario seguro para enviar"** se abrirá en otra pestaña la URL `SCRIPT_URL + "?form=1"`. Esa página es el formulario servido por Google; al enviar desde ahí los datos sí se guardan en la hoja.
+
+---
+
 ## Opción B: Formulario en tu PC o en otro servidor
 
 Si quieres usar los archivos `index.html`, `style.css`, `form.js` y `config.js` en tu computadora o en un servidor (GitHub Pages, etc.):
