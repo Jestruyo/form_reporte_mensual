@@ -89,24 +89,66 @@
         submitBtn.disabled = true;
         submitBtn.textContent = 'Enviando…';
 
-        fetch(SCRIPT_URL, {
+        var body = JSON.stringify(data);
+        var opts = {
             method: 'POST',
-            mode: 'no-cors',
+            redirect: 'manual',
             cache: 'no-cache',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        })
-            .then(function () {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Enviar reporte';
-                showMessage('Reporte enviado. Revisa la pestaña "Mi historial" para confirmar que se guardó.', 'success');
+            body: body
+        };
+
+        function onDone(result) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Enviar reporte';
+            if (result && result.ok) {
+                showMessage(result.message || 'Reporte enviado. Revisa la pestaña "Mi historial" para confirmar que se guardó.', 'success');
                 form.reset();
-            })
-            .catch(function (err) {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Enviar reporte';
-                showMessage('Error al enviar: ' + (err.message || 'vuelve a intentar o usa el formulario seguro.'), 'error');
+            } else {
+                showMessage((result && result.message) || 'Error al enviar. Vuelve a intentar.', 'error');
+            }
+        }
+        function onFail(err) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Enviar reporte';
+            showMessage('Error al enviar: ' + (err.message || 'vuelve a intentar.'), 'error');
+        }
+
+        function parseResponse(res) {
+            return res.text().then(function (text) {
+                try {
+                    return JSON.parse(text);
+                } catch (_) {
+                    return { ok: false, message: text || 'Error desconocido.' };
+                }
             });
+        }
+
+        fetch(SCRIPT_URL, opts)
+            .then(function (res) {
+                if (res.type === 'opaqueredirect' || res.status === 0) {
+                    onFail(new Error('No se pudo conectar con el servidor. Comprueba la URL del script.'));
+                    return;
+                }
+                if (res.status === 302 || res.status === 301) {
+                    var location = res.headers.get('Location');
+                    if (location) {
+                        return fetch(location, {
+                            method: 'POST',
+                            cache: 'no-cache',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: body
+                        }).then(parseResponse);
+                    }
+                }
+                return parseResponse(res);
+            })
+            .then(function (result) {
+                if (result) {
+                    onDone(result);
+                }
+            })
+            .catch(onFail);
     });
 
     form.addEventListener('reset', function () {
@@ -115,9 +157,4 @@
         setFieldError('Grupo', '');
         setFieldError('Predico', '');
     });
-
-    var linkSeguro = document.getElementById('linkFormSeguro');
-    if (linkSeguro && typeof SCRIPT_URL !== 'undefined' && SCRIPT_URL) {
-        linkSeguro.href = SCRIPT_URL.indexOf('?') >= 0 ? SCRIPT_URL + '&form=1' : SCRIPT_URL + '?form=1';
-    }
 })();
