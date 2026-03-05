@@ -98,17 +98,32 @@
             const response = await fetch(SCRIPT_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: params.toString()
+                body: params.toString(),
+                redirect: 'manual'
             });
+
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Enviar reporte';
+
+            // Google Apps Script a veces responde 302 (redirige a googleusercontent.com).
+            // El navegador no reenvía el POST en la redirección, pero el script puede haber
+            // procesado el POST antes. Tratamos 302 como envío aceptado.
+            if (response.type === 'opaqueredirect' || response.status === 302 || response.status === 0) {
+                showMessage('Reporte enviado. Si no aparece en la hoja, abre la pestaña "Mi historial" y pulsa Actualizar, o intenta de nuevo.', 'success');
+                form.reset();
+                return;
+            }
 
             const text = await response.text();
             let result = { ok: response.ok, message: text };
             try {
                 result = JSON.parse(text);
-            } catch (_) {}
-
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Enviar reporte';
+            } catch (_) {
+                // Si la respuesta es HTML (p. ej. página de echo de Google), no mostrar el HTML.
+                if (typeof text === 'string' && (text.trim().startsWith('<') || text.includes('<html'))) {
+                    result = { ok: response.ok, message: 'Reporte enviado correctamente. Gracias.' };
+                }
+            }
 
             if (result.ok) {
                 showMessage(result.message || 'Reporte enviado correctamente. Gracias.', 'success');
