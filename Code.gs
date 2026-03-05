@@ -32,8 +32,18 @@ function doGet(e) {
 
 function doPost(e) {
   try {
-    const params = e.parameter || {};
-    
+    // Aceptar tanto JSON (postData.contents) como form-urlencoded (parameter)
+    var params = {};
+    if (e.postData && e.postData.contents) {
+      try {
+        params = JSON.parse(e.postData.contents);
+      } catch (err) {
+        return jsonResponse({ ok: false, message: 'Cuerpo de la petición no válido.' });
+      }
+    } else if (e.parameter) {
+      params = e.parameter;
+    }
+
     if (VALIDATION_CODE && (params.codigo || '') !== VALIDATION_CODE) {
       return jsonResponse({ ok: false, message: 'Código de acceso incorrecto.' });
     }
@@ -78,9 +88,14 @@ function doPost(e) {
     ];
     sheet.appendRow(row);
 
-    return jsonResponse({ ok: true, message: 'Reporte guardado correctamente. Gracias.' });
+    // Respuesta en JSON para que el navegador/CORS la maneje correctamente
+    return ContentService
+      .createTextOutput(JSON.stringify({ ok: true, message: 'Reporte guardado correctamente. Gracias.' }))
+      .setMimeType(ContentService.MimeType.JSON);
   } catch (err) {
-    return jsonResponse({ ok: false, message: 'Error en el servidor: ' + (err.message || String(err)) });
+    return ContentService
+      .createTextOutput(JSON.stringify({ ok: false, message: 'Error en el servidor: ' + (err.message || String(err)) }))
+      .setMimeType(ContentService.MimeType.JSON);
   }
 }
 

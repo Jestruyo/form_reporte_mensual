@@ -67,33 +67,6 @@
         };
     }
 
-    function submitViaIframe(data) {
-        var iframe = document.getElementById('formTargetFrame');
-        if (!iframe) {
-            iframe = document.createElement('iframe');
-            iframe.name = 'formTargetFrame';
-            iframe.id = 'formTargetFrame';
-            iframe.setAttribute('aria-hidden', 'true');
-            iframe.style.cssText = 'position:absolute;width:0;height:0;border:0;visibility:hidden;';
-            document.body.appendChild(iframe);
-        }
-        var f = document.createElement('form');
-        f.method = 'POST';
-        f.action = SCRIPT_URL;
-        f.target = 'formTargetFrame';
-        f.style.display = 'none';
-        Object.keys(data).forEach(function (key) {
-            var input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = key;
-            input.value = data[key] === undefined || data[key] === null ? '' : String(data[key]);
-            f.appendChild(input);
-        });
-        document.body.appendChild(f);
-        f.submit();
-        document.body.removeChild(f);
-    }
-
     form.addEventListener('submit', function (e) {
         e.preventDefault();
         hideMessage();
@@ -116,11 +89,24 @@
         submitBtn.disabled = true;
         submitBtn.textContent = 'Enviando…';
 
-        submitViaIframe(data);
-        showMessage('Revisa "Mi historial" para ver si se guardó. Si no aparece, usa el botón verde "Abrir formulario seguro para enviar" — ese sí guarda siempre.', 'success');
-        form.reset();
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Enviar reporte';
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            cache: 'no-cache',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+            .then(function () {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Enviar reporte';
+                showMessage('Reporte enviado. Revisa la pestaña "Mi historial" para confirmar que se guardó.', 'success');
+                form.reset();
+            })
+            .catch(function (err) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Enviar reporte';
+                showMessage('Error al enviar: ' + (err.message || 'vuelve a intentar o usa el formulario seguro.'), 'error');
+            });
     });
 
     form.addEventListener('reset', function () {

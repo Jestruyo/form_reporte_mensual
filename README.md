@@ -34,6 +34,7 @@ Formulario web para registrar reportes de servicio en una hoja de Google Sheets 
    - **Ejecutar como:** Yo.
    - **Quién tiene acceso:** Cualquier persona.
    - **Implementar** y copia la URL.
+   - **Si más adelante cambias `Code.gs`:** Implementar → Gestionar implementaciones → Editar (lápiz) → **Nueva versión** → Implementar. Si no creas una nueva versión, seguirás usando la anterior.
 5. **Abrir el formulario:**  
    Abre en el navegador la URL que copiaste **más** `?form=1` al final.  
    Ejemplo: `https://script.google.com/macros/s/.../exec?form=1`  
