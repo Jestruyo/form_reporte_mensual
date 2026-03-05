@@ -117,7 +117,7 @@
         submitBtn.textContent = 'Enviando…';
 
         submitViaIframe(data);
-        showMessage('Reporte enviado. Revisa la pestaña "Mi historial" en unos segundos para confirmar. Si no aparece, usa el enlace "Formulario seguro" más abajo.', 'success');
+        showMessage('Revisa "Mi historial" para ver si se guardó. Si no aparece, usa el botón verde "Abrir formulario seguro para enviar" — ese sí guarda siempre.', 'success');
         form.reset();
         submitBtn.disabled = false;
         submitBtn.textContent = 'Enviar reporte';
