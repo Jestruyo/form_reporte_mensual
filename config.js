@@ -1,7 +1,7 @@
 // CONFIGURACIÓN: URL del Web App de Google Apps Script (para enviar reportes)
 // Después de desplegar el script en tu hoja (Extensiones → Apps Script → Implementar),
 // pega aquí la URL que te da Google (ej. https://script.google.com/macros/s/.../exec).
-const SCRIPT_URL = '';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyMtpuJh60WayOOYqJ3kPv9fOJ8GiHfuysB31TNWZ-osx-eOVDtFCq8_BBuRxguO-w5Gw/exec';
 
 // Opcional: código de validación para que solo usuarios autorizados envíen el formulario.
 const FORM_VALIDATION_CODE = '';
