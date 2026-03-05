@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte mensual de servicio</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="page">
+        <header class="header">
+            <h1>Reporte mensual de servicio</h1>
+            <p class="subtitle">Congregación Cordialidad</p>
+        </header>
+
+        <nav class="tabs" role="tablist" aria-label="Secciones">
+            <button type="button" class="tab active" role="tab" id="tabBtnForm" aria-selected="true" aria-controls="panelForm" data-tab="form">Enviar reporte</button>
+            <button type="button" class="tab" role="tab" id="tabBtnHistory" aria-selected="false" aria-controls="panelHistory" data-tab="history">Mi historial</button>
+        </nav>
+
+        <main class="main">
+            <section id="panelForm" class="panel active" role="tabpanel" aria-labelledby="tabBtnForm">
+                <form id="reportForm" class="form" novalidate>
+                    <div class="form-section">
+                        <h2>Datos del reporte</h2>
+                        <div class="field">
+                            <label for="nombre">Nombre completo <span class="required">*</span></label>
+                            <input type="text" id="nombre" name="nombre" required placeholder="Ej: María García" autocomplete="name">
+                            <span class="field-error" id="errorNombre"></span>
+                        </div>
+                        <div class="field">
+                            <label for="grupo">Grupo <span class="required">*</span></label>
+                            <select id="grupo" name="grupo" required>
+                                <option value="">Selecciona tu grupo</option>
+                                <option value="1">Grupo 1</option>
+                                <option value="2">Grupo 2</option>
+                                <option value="3">Grupo 3</option>
+                                <option value="4">Grupo 4</option>
+                            </select>
+                            <span class="field-error" id="errorGrupo"></span>
+                        </div>
+                        <div class="field">
+                            <label>¿Predicaste este mes? <span class="required">*</span></label>
+                            <div class="radio-group">
+                                <label class="radio-label">
+                                    <input type="radio" name="predico" value="Si prediqué" required>
+                                    <span>Sí prediqué</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="predico" value="No prediqué">
+                                    <span>No prediqué</span>
+                                </label>
+                            </div>
+                            <span class="field-error" id="errorPredico"></span>
+                        </div>
+                    </div>
+                    <div class="form-section">
+                        <h2>Actividad del mes</h2>
+                        <div class="fields-row">
+                            <div class="field">
+                                <label for="horas">Horas</label>
+                                <input type="number" id="horas" name="horas" min="0" step="1" placeholder="0" value="">
+                            </div>
+                            <div class="field">
+                                <label for="revisitas">Revisitas</label>
+                                <input type="number" id="revisitas" name="revisitas" min="0" step="1" placeholder="0" value="">
+                            </div>
+                        </div>
+                        <div class="fields-row">
+                            <div class="field">
+                                <label for="estudios">Estudios bíblicos</label>
+                                <input type="number" id="estudios" name="estudios" min="0" step="1" placeholder="0" value="">
+                            </div>
+                            <div class="field">
+                                <label for="publicaciones">Publicaciones</label>
+                                <input type="number" id="publicaciones" name="publicaciones" min="0" step="1" placeholder="0" value="">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label for="supervision">Supervisión (opcional)</label>
+                            <input type="text" id="supervision" name="supervision" placeholder="Comentarios o observaciones">
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" id="submitBtn" class="btn btn-primary">Enviar reporte</button>
+                        <button type="reset" class="btn btn-secondary">Limpiar</button>
+                    </div>
+                </form>
+                <div id="message" class="message hidden" role="alert"></div>
+            </section>
+
+            <section id="panelHistory" class="panel" role="tabpanel" aria-labelledby="tabBtnHistory" aria-hidden="true">
+                <div class="history-toolbar">
+                    <div class="history-filters">
+                        <div class="field">
+                            <label for="filterMonth">Mes</label>
+                            <select id="filterMonth">
+                                <option value="">Todos los meses</option>
+                                <option value="0">Enero</option>
+                                <option value="1">Febrero</option>
+                                <option value="2">Marzo</option>
+                                <option value="3">Abril</option>
+                                <option value="4">Mayo</option>
+                                <option value="5">Junio</option>
+                                <option value="6">Julio</option>
+                                <option value="7">Agosto</option>
+                                <option value="8">Septiembre</option>
+                                <option value="9">Octubre</option>
+                                <option value="10">Noviembre</option>
+                                <option value="11">Diciembre</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="filterName">Nombre (opcional)</label>
+                            <input type="text" id="filterName" placeholder="Filtrar por nombre" autocomplete="off">
+                        </div>
+                        <div class="field field-actions">
+                            <button type="button" id="btnApplyHistory" class="btn btn-primary">Consultar</button>
+                            <button type="button" id="btnRefreshHistory" class="btn btn-secondary" title="Actualizar datos">Actualizar</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="historyLoading" class="history-loading hidden">Cargando historial…</div>
+                <div id="historyError" class="message error hidden" role="alert"></div>
+                <div id="historyContent" class="history-content">
+                    <p class="history-empty" id="historyEmpty">Selecciona un mes y pulsa Consultar para ver los reportes.</p>
+                    <div id="historyList" class="history-list hidden"></div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>Enviar reportes y consultar historial · Congregación Cordialidad</p>
+        </footer>
+    </div>
+    <script src="config.js"></script>
+    <script src="form.js"></script>
+    <script src="history.js"></script>
+</body>
+</html>
